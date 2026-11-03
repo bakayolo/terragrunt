@@ -1,0 +1,27 @@
+name: Shuffle security fork
+on:
+  push:
+    branches:
+      - bena/codex/security-dependencies
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04-arm, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      CGO_ENABLED: "0"
+      GOTOOLCHAIN: local
+      AWS_EC2_METADATA_DISABLED: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.3"
+          cache: true
+      - run: go mod verify
+      - name: Test authentication helpers and patched JOSE library
+        run: go test -mod=readonly -trimpath -p=2 ./internal/iam ./internal/awshelper ./internal/version github.com/go-jose/go-jose/v4/...

@@ -2,6 +2,10 @@ name: CI
 
 on:
   push:
+    # This fork's focused security suite runs separately without upstream's
+    # cloud integration matrix, publishing, or required upstream secrets.
+    branches-ignore:
+      - bena/codex/security-dependencies
 
 concurrency:
   group: ci-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
